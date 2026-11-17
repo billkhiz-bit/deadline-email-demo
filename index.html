@@ -79,14 +79,14 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
   <span class="eyebrow">Working demo &middot; 12 made-up companies</span>
   <h1>Every Companies House deadline, in the inbox each morning</h1>
   <p class="lede">A tool built and used every day at a small UK accountancy practice. Each morning it checks every client at Companies House and emails the practice what is due, overdue, or just filed. Nobody has to go through them one by one, and there is nothing new to log in to.</p>
-  <div class="facts"><span class="chip">Demo date: Mon 30 Nov 2026</span><span class="chip">Both emails exactly as the tool renders them</span><span class="chip">No real client data</span></div>
+  <div class="facts"><span class="chip">Demo date: Mon 30 Nov 2026</span><span class="chip">Both emails as the tool renders them</span><span class="chip">No real client data</span></div>
 </header>
 
 <main class="wrap">
   <section aria-labelledby="how-h">
     <h2 id="how-h">How it works, every morning</h2>
     <div class="steps">
-      <div class="step"><span class="n">1 &middot; 07:45</span><h3>Reads Companies House</h3><p>Every client's accounts and confirmation statement dates, from the public Companies House API, inside its rate limit. If any lookup fails, the run stops rather than send a list with gaps, and the email says NOT UPDATED.</p></div>
+      <div class="step"><span class="n">1 &middot; 07:45</span><h3>Reads Companies House</h3><p>Every client's accounts and confirmation statement dates, from the public Companies House API, inside its rate limit. If any lookup fails, it changes nothing and tries again six minutes later. If it still fails, the email says NOT UPDATED and shows the last good data, never a list with gaps.</p></div>
       <div class="step"><span class="n">2</span><h3>Adds Corporation Tax</h3><p>Companies House doesn't hold CT dates, so it estimates them from the accounts period end: payment 9 months and a day after, the return 12 months after. They're labelled as estimates.</p></div>
       <div class="step"><span class="n">3</span><h3>Checks the calendar</h3><p>A deadline on a weekend or bank holiday (GOV.UK's list) keeps its real date and gets a flag with the last working day before it: a reminder for filings, and HMRC's own pay-by date for CT.</p></div>
       <div class="step"><span class="n">4</span><h3>Emails the practice</h3><p>A full overview on Mondays and Fridays. On other days, only if something is due today or tomorrow or fell overdue. A second email when Companies House accepts a filing.</p></div>
@@ -138,6 +138,7 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
         <li>quarterly instalment dates for a large company</li>
         <li>Scottish or Northern Irish bank holidays for the clients they apply to</li>
         <li>a book that needs more than 600 lookups, with the calls staggered across Companies House's five-minute windows</li>
+        <li>one company that can't be checked keeping its last known dates, flagged as not checked, while everyone else updates</li>
       </ul>
     </div>
     <div class="card">
@@ -154,7 +155,7 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
   <section aria-labelledby="q-h">
     <h2 id="q-h">Questions practices ask</h2>
     <div class="faq">
-      <div class="qa"><h3>How does it get the dates, and what about the rate limit?</h3><p>From the public Companies House API, once each morning: about two calls per company. Companies House allows 600 calls every five minutes, so for a book that needs more, the calls can be staggered across those windows; it just takes a little longer. If any lookup comes back empty, the run stops rather than send a list with gaps, and the email says NOT UPDATED.</p></div>
+      <div class="qa"><h3>How does it get the dates, and what about the rate limit?</h3><p>From the public Companies House API, once each morning: about two calls per company. Companies House allows 600 calls every five minutes, so for a book that needs more, the calls can be staggered across those windows; it just takes a little longer. If any lookup comes back empty, the update stops before it changes anything and tries again six minutes later. If it still fails, the email arrives marked NOT UPDATED, says why, and shows the last good data with its date, so a failed lookup can't pass as "nothing due".</p></div>
       <div class="qa"><h3>Where do the Corporation Tax dates come from?</h3><p>Companies House doesn't hold them, so they're estimated from the accounts period end: payment 9 months and a day after, the return 12 months after. They're labelled as estimates, and an amber flag asks you to check that a passed date was paid or filed. The rule assumes a small company. A first period over 12 months (two CT periods, each with its own dates) and quarterly instalments for a large company can be added for a practice that has those clients.</p></div>
       <div class="qa"><h3>What happens on weekends and bank holidays?</h3><p>The real deadline never moves. A deadline on a weekend or bank holiday gets a flag and the last working day before it: a reminder for a filing, and for a CT payment the day HMRC needs the money unless it goes by Faster Payments. It uses GOV.UK's England and Wales list. The Scottish and Northern Irish lists come in the same GOV.UK feed, so they can be used for the clients they apply to. <a href="#m-h">See Farthing Lane Roofing and the Christmas dates above.</a></p></div>
       <div class="qa"><h3>What if a company changes its year end, gets an extension or goes into liquidation?</h3><p>The dates are read fresh every morning, so a new accounting reference date or an extension shows up the next day, and a due date that moves without a filing is flagged. A company in liquidation is left out with a one-line note, as its deadlines are the liquidator's. A strike-off proposal is marked, and a dissolved company drops off.</p></div>
@@ -166,7 +167,7 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
 
 <footer class="wrap">
   <p>All 12 companies are made up. Every name was checked on Companies House's name availability checker, so none belongs to a real company.</p>
-  <p>The two emails are shown as the tool renders them, with only the practice's own details taken out.</p>
+  <p>The two emails are shown as the tool renders them, with only details about the practice itself changed.</p>
   <p>Bilal Khizar</p>
 </footer>
 
