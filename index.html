@@ -66,6 +66,12 @@ p { margin: 0; max-width: 68ch; }
 .card ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
 .card.fit { border: 2px solid var(--accent); }
 footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+.faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .faq { grid-template-columns: 1fr; } }
+.qa { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.qa p { font-size: 15px; color: var(--muted); }
+.qa a { color: var(--accent); }
+.qa a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -131,7 +137,7 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
         <li>a first accounting period over 12 months, split into two CT periods with their own dates</li>
         <li>quarterly instalment dates for a large company</li>
         <li>Scottish or Northern Irish bank holidays for the clients they apply to</li>
-        <li>more clients than one morning's run can check inside the rate limit, paced over a few minutes</li>
+        <li>a book that needs more than 600 lookups, with the calls staggered across Companies House's five-minute windows</li>
       </ul>
     </div>
     <div class="card">
@@ -142,6 +148,18 @@ footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; displ
         <li>What it fetches is public Companies House data: names, dates and officers.</li>
         <li>The emails go to the practice's own inbox.</li>
       </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="q-h">
+    <h2 id="q-h">Questions practices ask</h2>
+    <div class="faq">
+      <div class="qa"><h3>How does it get the dates, and what about the rate limit?</h3><p>From the public Companies House API, once each morning: about two calls per company. Companies House allows 600 calls every five minutes, so for a book that needs more, the calls can be staggered across those windows; it just takes a little longer. If any lookup comes back empty, the run stops rather than send a list with gaps, and the email says NOT UPDATED.</p></div>
+      <div class="qa"><h3>Where do the Corporation Tax dates come from?</h3><p>Companies House doesn't hold them, so they're estimated from the accounts period end: payment 9 months and a day after, the return 12 months after. They're labelled as estimates, and an amber flag asks you to check that a passed date was paid or filed. The rule assumes a small company. A first period over 12 months (two CT periods, each with its own dates) and quarterly instalments for a large company can be added for a practice that has those clients.</p></div>
+      <div class="qa"><h3>What happens on weekends and bank holidays?</h3><p>The real deadline never moves. A deadline on a weekend or bank holiday gets a flag and the last working day before it: a reminder for a filing, and for a CT payment the day HMRC needs the money unless it goes by Faster Payments. It uses GOV.UK's England and Wales list. The Scottish and Northern Irish lists come in the same GOV.UK feed, so they can be used for the clients they apply to. <a href="#m-h">See Farthing Lane Roofing and the Christmas dates above.</a></p></div>
+      <div class="qa"><h3>What if a company changes its year end, gets an extension or goes into liquidation?</h3><p>The dates are read fresh every morning, so a new accounting reference date or an extension shows up the next day, and a due date that moves without a filing is flagged. A company in liquidation is left out with a one-line note, as its deadlines are the liquidator's. A strike-off proposal is marked, and a dissolved company drops off.</p></div>
+      <div class="qa"><h3>How do I know a filing actually went through?</h3><p>Companies House only moves a company's dates once it has accepted a filing, so the second email confirms acceptance, not just submission. It shows the new due date beside the old one, and says when a filing was late. <a href="#f-h">See the filed email above.</a></p></div>
+      <div class="qa"><h3>Where is the client data kept?</h3><p>On the practice's own computer, in its own file. It isn't a hosted service: the tool fetches only public Companies House data and emails the practice's own inbox. Any access needed to set it up is covered by a written processor agreement.</p></div>
     </div>
   </section>
 </main>
