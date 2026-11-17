@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A working demo, on made-up companies, of a morning email listing every Companies House and Corporation Tax deadline for an accountancy practice's clients.">
+<title>Companies House Deadline Emails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a short opener; four numbered steps (a real daily sequence); each email shown as it arrives, beside notes on what to look for; then fit and data. */
+:root {
+  --bg: #f5f6f3; --surface: #ffffff; --fg: #1b211c; --muted: #5a645b; --line: #dde2da;
+  --accent: #2c6e49; --accent-soft: #e3efe7; --amber: #9a5b00; --amber-soft: #fff1d6;
+  --paper: #ffffff; --paper-fg: #1d1d1d; --paper-line: #d7d7d7;
+  --f-display: "Source Serif 4", Georgia, serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111512; --surface: #191f1a; --fg: #e4eae4; --muted: #9eaa9f; --line: #2b352c;
+    --accent: #7cc49a; --accent-soft: #1c3326; --amber: #f0b45a; --amber-soft: #3a2a10; --paper-line: #3a423b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111512; --surface: #191f1a; --fg: #e4eae4; --muted: #9eaa9f; --line: #2b352c;
+  --accent: #7cc49a; --accent-soft: #1c3326; --amber: #f0b45a; --amber-soft: #3a2a10; --paper-line: #3a423b;
+  color-scheme: dark;
+}
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.wrap { padding-block: 40px 8px; display: grid; gap: 12px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12.5px; letter-spacing: .04em; color: var(--accent); text-transform: uppercase; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(28px, 4.6vw, 44px); line-height: 1.12; margin: 0; max-width: 22ch; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip { font-size: 13.5px; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+main.wrap { padding-block: 28px 56px; display: grid; gap: 44px; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 26px; margin: 0 0 14px; text-wrap: balance; }
+h3 { font-size: 17px; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+@media (max-width: 880px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.step .n { font-family: var(--f-mono); font-size: 12.5px; color: var(--accent); }
+.step p { font-size: 15px; color: var(--muted); }
+.demo { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { .demo { grid-template-columns: 1fr; } }
+.client { border: 1px solid var(--paper-line); border-radius: 10px; overflow: hidden; background: var(--paper); color: var(--paper-fg); min-width: 0; }
+.client .bar { font-family: var(--f-mono); font-size: 12.5px; padding: 10px 14px; border-bottom: 1px solid #e4e4e4; background: #f7f7f7; color: #444; display: grid; gap: 2px; overflow-wrap: anywhere; }
+.client .bar b { color: #111; font-weight: 500; }
+.client .msg { padding: 14px 16px; overflow-x: auto; font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 14px; color: #1d1d1d; }
+.notes { display: grid; gap: 10px; }
+.note { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.note b { display: block; font-size: 14px; margin-bottom: 2px; }
+.note.warn { border-left: 4px solid var(--amber); }
+.note.ok { border-left: 4px solid var(--accent); }
+.note.red { border-left: 4px solid #c0392b; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.card.fit { border: 2px solid var(--accent); }
+footer.wrap { padding-block: 0 40px; color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <span class="eyebrow">Working demo &middot; 12 made-up companies</span>
+  <h1>Every Companies House deadline, in the inbox each morning</h1>
+  <p class="lede">A tool built and used every day at a small UK accountancy practice. Each morning it checks every client at Companies House and emails the practice what is due, overdue, or just filed. Nobody has to go through them one by one, and there is nothing new to log in to.</p>
+  <div class="facts"><span class="chip">Demo date: Mon 30 Nov 2026</span><span class="chip">Both emails exactly as the tool renders them</span><span class="chip">No real client data</span></div>
+</header>
+
+<main class="wrap">
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">How it works, every morning</h2>
+    <div class="steps">
+      <div class="step"><span class="n">1 &middot; 07:45</span><h3>Reads Companies House</h3><p>Every client's accounts and confirmation statement dates, from the public Companies House API, inside its rate limit. If any lookup fails, the run stops rather than send a list with gaps, and the email says NOT UPDATED.</p></div>
+      <div class="step"><span class="n">2</span><h3>Adds Corporation Tax</h3><p>Companies House doesn't hold CT dates, so it estimates them from the accounts period end: payment 9 months and a day after, the return 12 months after. They're labelled as estimates.</p></div>
+      <div class="step"><span class="n">3</span><h3>Checks the calendar</h3><p>A deadline on a weekend or bank holiday (GOV.UK's list) keeps its real date and gets a flag with the last working day before it: a reminder for filings, and HMRC's own pay-by date for CT.</p></div>
+      <div class="step"><span class="n">4</span><h3>Emails the practice</h3><p>A full overview on Mondays and Fridays. On other days, only if something is due today or tomorrow or fell overdue. A second email when Companies House accepts a filing.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="m-h">
+    <h2 id="m-h">The Monday overview</h2>
+    <div class="demo">
+      <div class="client" role="region" aria-label="The morning deadline email">
+        <div class="bar"><span>Subject: <b>Deadlines, Monday overview: 6 due in 7 days, 10 in 30 days, 3 overdue at Companies House, 2 CT dates to check</b></span><span>Arrives: Mon 30 Nov 2026, just after 07:45</span></div>
+        <div class="msg"><div style='font-family:Segoe UI,Arial,sans-serif;font-size:16px;line-height:1.45;color:#222'><h2 style='margin:0 0 12px;font-size:22px'>Deadline overview, Mon 30 Nov 2026</h2><p style='color:#555'>Data from Mon 30 Nov 2026, from the tracker's Companies House refresh.</p><table style='border-collapse:collapse;font-size:16px'><tr><th style='padding:4px 10px;text-align:right;border-bottom:2px solid #999;font-weight:600;color:#444'></th><th style='padding:4px 10px;text-align:right;border-bottom:2px solid #999;font-weight:600;color:#444'>Next 7 days</th><th style='padding:4px 10px;text-align:right;border-bottom:2px solid #999;font-weight:600;color:#444'>8&ndash;30 days</th><th style='padding:4px 10px;text-align:right;border-bottom:2px solid #999;font-weight:600;color:#444'>Overdue</th></tr><tr><td style='padding:5px 10px 5px 0;border-bottom:1px solid #eee'>Accounts</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>1</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#bbb'>&ndash;</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#c0392b;font-weight:bold'>2</td></tr><tr><td style='padding:5px 10px 5px 0;border-bottom:1px solid #eee'>Confirmation statements</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>3</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>4</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#c0392b;font-weight:bold'>1</td></tr><tr><td style='padding:5px 10px 5px 0;border-bottom:1px solid #eee'>CT payments</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>1</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#bbb'>&ndash;</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#b9770e;font-weight:bold'>2</td></tr><tr><td style='padding:5px 10px 5px 0;border-bottom:1px solid #eee'>CT filing</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>1</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#bbb'>&ndash;</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee;color:#bbb'>&ndash;</td></tr><tr style='font-weight:bold'><td style='padding:5px 10px 5px 0;border-bottom:1px solid #eee'>Total</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>6</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>4</td><td style='padding:5px 10px;text-align:right;border-bottom:1px solid #eee'>5</td></tr></table><p style='color:#666;font-size:14px;margin:6px 0 2px'>Red: overdue at Companies House. Amber: an estimated corporation tax date has passed; check it was paid or filed.</p><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Accounts filing (2)</h3><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Sat 31 Oct</b><br><span style='color:#c0392b;font-weight:bold'>30 days overdue</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>NORTHGATE DENTAL LAB</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Mon 30 Nov</b><br><span style='color:#b9770e;font-weight:bold'>today</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>RIVERSIDE LARDER</td></tr></table><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Confirmation statements (8)</h3><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Mon 16 Nov</b><br><span style='color:#c0392b;font-weight:bold'>14 days overdue</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>BRIGHTWATER CONSULTING</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Tue 1 Dec</b><br><span style='color:#b9770e;font-weight:bold'>tomorrow</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>WHITCOMBE &amp; DAUGHTERS BUILDERS</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Thu 3 Dec</b><br><span style='color:#666'>in 3 days</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>COBBLE &amp; VINE WINE BAR*</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Sat 5 Dec</b><br><span style='background:#fdf2e0;color:#9a6408;font-weight:bold;font-size:13px;padding:2px 7px;white-space:nowrap'>&#9888; WEEKEND</span><br><span style='color:#b9770e;font-weight:bold'>file by Fri 4 Dec</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>FARTHING LANE ROOFING</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Wed 9 Dec</b><br><span style='color:#666'>in 9 days</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>OAKHURST PROPERTY HOLDINGS</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Wed 16 Dec</b><br><span style='color:#666'>in 16 days</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>PEMBERTON LETTINGS</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Fri 25 Dec</b><br><span style='background:#fdf2e0;color:#9a6408;font-weight:bold;font-size:13px;padding:2px 7px;white-space:nowrap'>&#9888; BANK HOLIDAY</span><br><span style='color:#b9770e;font-weight:bold'>file by Thu 24 Dec</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>HOLLOWAY PRINT STUDIO</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Mon 28 Dec</b><br><span style='background:#fdf2e0;color:#9a6408;font-weight:bold;font-size:13px;padding:2px 7px;white-space:nowrap'>&#9888; BANK HOLIDAY</span><br><span style='color:#b9770e;font-weight:bold'>file by Thu 24 Dec</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>MARSH &amp; TIDY CLEANING</td></tr></table><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Corporation tax payments (2)</h3><p style='color:#666;font-size:14px;margin:6px 0 2px'>Amber dates have passed. The tracker cannot see HMRC, so check each was paid.</p><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Sun 1 Nov</b><br><span style='color:#b9770e;font-weight:bold'>passed 29 days ago</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>NORTHGATE DENTAL LAB</td></tr><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Tue 1 Dec</b><br><span style='color:#b9770e;font-weight:bold'>tomorrow</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>RIVERSIDE LARDER</td></tr></table><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Corporation tax filing (1)</h3><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td width='150' style='width:150px;padding:7px 12px 7px 0;vertical-align:top;border-bottom:1px solid #eee'><b>Mon 30 Nov</b><br><span style='color:#b9770e;font-weight:bold'>today</span></td><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'>COBBLE &amp; VINE WINE BAR*</td></tr></table><p style='margin-top:18px'>Not listed: 2 items more than 30 days past (1 overdue at Companies House, 1 CT date to check; the oldest was due Mon 31 Aug 2026). The full list is in the tracker.</p><p>Left out: 1 company in liquidation (GREYSTONE SCAFFOLDING), as their deadlines are the liquidator's. The tracker still has them.</p><p style='color:#666;font-size:13px;margin-top:18px'>* At Companies House: COBBLE &amp; VINE WINE BAR LTD, active proposal to strike off.</p><p style='color:#666;font-size:13px;margin-top:18px'>Corporation tax dates are estimates from the Companies House accounts date (one payment, the small-company rule), not HMRC records, so the tracker cannot see whether anything was paid or filed. A CT payment due on a weekend or bank holiday has to reach HMRC by the last working day before, unless it goes by Faster Payments. Filing deadlines on a weekend or bank holiday show that working day too, as the day to have them filed by. Sent automatically by the tracker's 07:45 update.</p></div></div>
+      </div>
+      <div class="notes">
+        <div class="note"><b>The summary table</b>Each deadline type in three columns: the next 7 days, 8 to 30 days, and overdue.</div>
+        <div class="note red"><b>Red is overdue at Companies House</b>Northgate Dental Lab's accounts and Brightwater Consulting's confirmation statement.</div>
+        <div class="note warn"><b>&#9888; WEEKEND</b>Farthing Lane Roofing's confirmation statement falls on Sat 5 Dec. The deadline stays the 5th; "file by Fri 4 Dec" gets it done while the office is open.</div>
+        <div class="note warn"><b>&#9888; BANK HOLIDAY</b>Christmas Day and the Boxing Day substitute (Mon 28 Dec) both point back to Thu 24 Dec.</div>
+        <div class="note warn"><b>Amber CT dates</b>Northgate's estimated CT payment date has passed. The tool can't see HMRC, so it asks you to check it was paid.</div>
+        <div class="note"><b>* Strike-off proposal</b>Cobble &amp; Vine Wine Bar has an active proposal to strike off, so it's marked.</div>
+        <div class="note"><b>Liquidation</b>Greystone Scaffolding is in liquidation: left out, with one line saying why.</div>
+        <div class="note"><b>Older items</b>Anything more than 30 days past is counted at the bottom, not listed.</div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="f-h">
+    <h2 id="f-h">When Companies House accepts a filing</h2>
+    <div class="demo">
+      <div class="client" role="region" aria-label="The filed at Companies House email">
+        <div class="bar"><span>Subject: <b>Filed at Companies House: 1 set of accounts, 1 confirmation statement</b></span><span>Arrives: only on mornings when something went through</span></div>
+        <div class="msg"><div style='font-family:Segoe UI,Arial,sans-serif;font-size:16px;line-height:1.45;color:#222'><h2 style='margin:0 0 12px;font-size:22px'>Filed at Companies House, Mon 30 Nov 2026</h2><p style='color:#555'>What changed between the tracker's data of Fri 27 Nov 2026 and Mon 30 Nov 2026.</p><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Accounts filed (1)</h3><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'><span style='background:#e3f4ea;color:#1e7e45;font-weight:bold;font-size:13px;padding:2px 7px;white-space:nowrap'>&#10003; FILED</span>&nbsp; <b>PEMBERTON LETTINGS</b><br><span style='color:#666'>Accounts made up to Tue 31 Mar 2026, accepted by Companies House.<br>Next due Fri 31 Dec 2027 (was due Thu 31 Dec 2026).</span></td></tr></table><h3 style='margin:26px 0 6px;font-size:18px;padding-bottom:4px;border-bottom:2px solid #d5dde3'>Confirmation statements filed (1)</h3><table width='100%' style='border-collapse:collapse;font-size:16px;width:100%'><tr><td style='padding:7px 0;vertical-align:top;border-bottom:1px solid #eee'><span style='background:#e3f4ea;color:#1e7e45;font-weight:bold;font-size:13px;padding:2px 7px;white-space:nowrap'>&#10003; FILED</span>&nbsp; <b>TAMSIN REED PHYSIO</b><br><span style='color:#666'>Confirmation statement accepted by Companies House.<br>Next due Sat 20 Nov 2027 (was due Fri 20 Nov 2026). <span style='color:#c0392b;font-weight:bold'>It was overdue.</span></span></td></tr></table><p style='color:#666;font-size:13px;margin-top:18px'>Found by comparing this morning's Companies House refresh with the last one checked. Companies House moves a company's dates only once it has accepted a filing, so FILED means accepted, not just submitted. Companies are matched by name: one renamed since the last check is not compared. Sent automatically by the tracker's 07:45 update.</p></div></div>
+      </div>
+      <div class="notes">
+        <div class="note ok"><b>&#10003; FILED means accepted</b>Companies House moves a company's dates only once it has accepted a filing, so this confirms acceptance, not just submission.</div>
+        <div class="note ok"><b>The new and old dates</b>Pemberton Lettings' next accounts deadline, with the one it replaces.</div>
+        <div class="note"><b>"It was overdue"</b>Tamsin Reed Physio's confirmation statement went in late, and the email says so.</div>
+        <div class="note"><b>Dates that move with no filing</b>Usually a change of accounting reference date or an extension. These are flagged too.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="two" aria-label="Fitted to each practice, and where the data lives">
+    <div class="card fit">
+      <h2>Fitted to each practice</h2>
+      <p>The tracker isn't a one-and-done product. It's set up around each practice's clients and the way the practice works, and it keeps growing with them. When a practice has clients it doesn't cover yet, the rule goes in for that practice. For example:</p>
+      <ul>
+        <li>a first accounting period over 12 months, split into two CT periods with their own dates</li>
+        <li>quarterly instalment dates for a large company</li>
+        <li>Scottish or Northern Irish bank holidays for the clients they apply to</li>
+        <li>more clients than one morning's run can check inside the rate limit, paced over a few minutes</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Where the data lives</h2>
+      <ul>
+        <li>It runs on the practice's own computer, not a hosted service.</li>
+        <li>The client list stays in the practice's own file.</li>
+        <li>What it fetches is public Companies House data: names, dates and officers.</li>
+        <li>The emails go to the practice's own inbox.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>All 12 companies are made up. Every name was checked on Companies House's name availability checker, so none belongs to a real company.</p>
+  <p>The two emails are shown as the tool renders them, with only the practice's own details taken out.</p>
+  <p>Bilal Khizar</p>
+</footer>
+
+</body>
+</html>
